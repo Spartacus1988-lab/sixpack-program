@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>בטן שש-קוביות | תוכנית מדעית מלאה</title>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0c10;
+    --surface: #111318;
+    --surface2: #181c24;
+    --border: #1f2633;
+    --accent: #00d4ff;
+    --accent2: #7c3aed;
+    --accent3: #10b981;
+    --gold: #f59e0b;
+    --text: #e2e8f0;
+    --muted: #64748b;
+    --danger: #ef4444;
+    --phase1: #0c4a6e;
+    --phase2: #3b0764;
+    --phase3: #064e3b;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Heebo', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(0,212,255,0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0,212,255,0.03) 1px, transparent 1px);
+    background-size: 40px 40px;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .container { max-width: 1100px; margin: 0 auto; padding: 40px 24px; position: relative; z-index: 1; }
+
+  header { text-align: center; margin-bottom: 40px; }
+
+  .badge {
+    display: inline-block;
+    background: linear-gradient(135deg, rgba(0,212,255,0.15), rgba(124,58,237,0.15));
+    border: 1px solid rgba(0,212,255,0.3);
+    color: var(--accent);
+    font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    padding: 6px 16px; border-radius: 2px; margin-bottom: 20px;
+    text-transform: uppercase; font-family: 'IBM Plex Mono', monospace;
+  }
+
+  h1 {
+    font-size: clamp(32px, 5vw, 52px); font-weight: 900; line-height: 1.1;
+    background: linear-gradient(135deg, #fff 0%, var(--accent) 50%, var(--accent2) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+    background-clip: text; margin-bottom: 12px;
+  }
+
+  .subtitle { color: var(--muted); font-size: 16px; font-weight: 300; margin-bottom: 20px; }
+
+  .stat-chips { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .stat-chip {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 4px; padding: 6px 14px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px;
+    color: var(--accent); letter-spacing: 1px;
+  }
+
+  /* ── Tabs ── */
+  .tabs-bar {
+    display: flex; gap: 8px; margin-bottom: 32px;
+    overflow-x: auto; padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .tabs-bar::-webkit-scrollbar { display: none; }
+
+  .tab-btn {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 3px; padding: 10px 20px;
+    font-size: 13px; font-family: 'Heebo', sans-serif;
+    color: var(--muted); cursor: pointer;
+    transition: all 0.15s; white-space: nowrap; flex-shrink: 0;
+  }
+  .tab-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .tab-btn.active {
+    background: rgba(0,212,255,0.1);
+    border-color: var(--accent); color: var(--accent); font-weight: 700;
+  }
+
+  .tab-panel { display: none; animation: fadeIn 0.35s ease; }
+  .tab-panel.active { display: block; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Card ── */
+  .main-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 8px; overflow: hidden;
+    box-shadow: 0 0 60px rgba(0,212,255,0.05);
+    margin-bottom: 24px;
+  }
+
+  .card-header {
+    background: var(--surface2); border-bottom: 1px solid var(--border);
+    padding: 16px 24px; display: flex; align-items: center; gap: 10px;
+  }
+
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot-red { background: #ff5f57; }
+  .dot-yellow { background: #febc2e; }
+  .dot-green { background: #28c840; }
+  .card-title { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--muted); margin-right: auto; }
+
+  .card-body { padding: 24px; }
+
+  /* ── Forms ── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 20px; }
+  @media(max-width: 700px) { .form-grid { grid-template-columns: 1fr; } }
+
+  .form-group { display: flex; flex-direction: column; gap: 8px; }
+
+  label {
+    font-size: 11px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  select, input[type="number"] {
+    background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); border-radius: 4px; padding: 12px 16px;
+    font-size: 14px; font-family: 'Heebo', sans-serif;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    width: 100%; direction: rtl;
+  }
+  select:focus, input[type="number"]:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(0,212,255,0.1);
+  }
+
+  /* ── Buttons ── */
+  .btn-primary {
+    width: 100%; padding: 16px;
+    background: linear-gradient(135deg, var(--accent), var(--accent2));
+    border: none; border-radius: 4px; color: white;
+    font-size: 16px; font-weight: 700; font-family: 'Heebo', sans-serif;
+    cursor: pointer; transition: all 0.2s; margin-top: 20px;
+    letter-spacing: 1px; position: relative; overflow: hidden;
+  }
+  .btn-primary::before {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
+    opacity: 0; transition: opacity 0.2s;
+  }
+  .btn-primary:hover::before { opacity: 1; }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 32px rgba(0,212,255,0.3); }
+  .btn-primary:active { transform: translateY(0); }
+
+  .btn-secondary {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text); border-radius: 4px; padding: 10px 20px;
+    font-size: 13px; font-family: 'Heebo', sans-serif;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .btn-secondary:hover { border-color: var(--accent); color: var(--accent); }
+
+  .divider { height: 1px; background: linear-gradient(90deg, transparent, var(--border), transparent); margin: 24px 0; }
+
+  /* ── Calculator Results ── */
+  .results-section { display: none; animation: fadeIn 0.4s ease; }
+  .results-section.visible { display: block; }
+
+  .results-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  @media(max-width: 700px) { .results-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media(max-width: 400px) { .results-grid { grid-template-columns: 1fr; } }
+
+  .metric-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 20px 16px; text-align: center;
+    transition: border-color 0.2s;
+  }
+  .metric-card:hover { border-color: rgba(0,212,255,0.3); }
+  .metric-val { font-size: 30px; font-weight: 900; color: var(--accent); line-height: 1; }
+  .metric-label { font-size: 10px; color: var(--muted); margin-top: 6px; font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 1px; }
+  .metric-sub { font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+  .weeks-bar-wrap { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 20px; margin-bottom: 20px; }
+  .weeks-bar-label { font-size: 12px; color: var(--muted); font-family: 'IBM Plex Mono', monospace; margin-bottom: 10px; }
+  .weeks-bar-track { background: var(--bg); border-radius: 4px; height: 10px; overflow: hidden; }
+  .weeks-bar-fill { height: 100%; background: linear-gradient(90deg, var(--accent3), var(--accent)); border-radius: 4px; transition: width 0.8s ease; }
+  .weeks-bar-text { font-size: 22px; font-weight: 900; color: var(--text); margin-top: 12px; }
+  .weeks-bar-sub { font-size: 12px; color: var(--muted); margin-top: 4px; }
+
+  .macros-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 20px; }
+  .macros-title { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+  .macro-row { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .macro-name { font-size: 13px; font-weight: 700; width: 80px; flex-shrink: 0; }
+  .macro-bar-wrap { flex: 1; background: var(--bg); border-radius: 4px; height: 8px; overflow: hidden; }
+  .macro-bar { height: 100%; border-radius: 4px; transition: width 0.8s ease; }
+  .macro-protein .macro-bar { background: var(--accent); }
+  .macro-carbs .macro-bar { background: var(--accent2); }
+  .macro-fat .macro-bar { background: var(--gold); }
+  .macro-grams { font-size: 13px; font-weight: 700; font-family: 'IBM Plex Mono', monospace; width: 60px; text-align: left; flex-shrink: 0; }
+
+  /* ── Training ── */
+  .section-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 2px; color: var(--muted);
+    margin-bottom: 12px;
+  }
+
+  .week-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 24px; }
+  .week-pill {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 3px; padding: 6px 12px; font-size: 12px;
+    cursor: pointer; transition: all 0.15s; color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+  }
+  .week-pill:hover { border-color: var(--accent); color: var(--accent); }
+  .week-pill.active { background: rgba(0,212,255,0.1); border-color: var(--accent); color: var(--accent); }
+  .week-pill.phase2 { border-color: rgba(124,58,237,0.4); color: var(--accent2); }
+  .week-pill.phase2:hover, .week-pill.phase2.active { background: rgba(124,58,237,0.1); border-color: var(--accent2); }
+  .week-pill.phase3 { border-color: rgba(16,185,129,0.4); color: var(--accent3); }
+  .week-pill.phase3:hover, .week-pill.phase3.active { background: rgba(16,185,129,0.1); border-color: var(--accent3); }
+
+  .phase-legend { display: flex; gap: 16px; margin-bottom: 20px; flex-wrap: wrap; }
+  .phase-dot-wrap { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--muted); }
+  .phase-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+  .week-header { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+  .week-num { font-size: 28px; font-weight: 900; color: var(--text); }
+  .phase-badge {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600;
+    letter-spacing: 1px; text-transform: uppercase;
+    padding: 4px 10px; border-radius: 2px;
+  }
+  .phase-badge.p1 { background: rgba(12,74,110,0.4); color: #7dd3fc; border: 1px solid rgba(12,74,110,0.8); }
+  .phase-badge.p2 { background: rgba(59,7,100,0.4); color: #d8b4fe; border: 1px solid rgba(59,7,100,0.8); }
+  .phase-badge.p3 { background: rgba(6,78,59,0.4); color: #6ee7b7; border: 1px solid rgba(6,78,59,0.8); }
+
+  .day-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  @media(max-width: 900px) { .day-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media(max-width: 600px) { .day-grid { grid-template-columns: 1fr; } }
+
+  .day-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 16px; transition: border-color 0.2s;
+  }
+  .day-card:hover { border-color: rgba(0,212,255,0.2); }
+  .day-card.rest { opacity: 0.45; }
+  .day-name { font-size: 11px; font-family: 'IBM Plex Mono', monospace; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+  .day-type-badge {
+    display: inline-block; font-size: 10px; font-weight: 700;
+    padding: 3px 8px; border-radius: 2px; margin-bottom: 12px;
+    font-family: 'IBM Plex Mono', monospace; text-transform: uppercase; letter-spacing: 1px;
+  }
+  .type-core    { background: rgba(0,212,255,0.1); color: var(--accent); }
+  .type-hiit    { background: rgba(239,68,68,0.12); color: #fca5a5; }
+  .type-compound{ background: rgba(245,158,11,0.12); color: #fcd34d; }
+  .type-rest    { background: rgba(100,116,139,0.1); color: var(--muted); }
+
+  .exercise-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 0; border-bottom: 1px solid rgba(31,38,51,0.8);
+    font-size: 13px;
+  }
+  .exercise-row:last-child { border-bottom: none; }
+  .ex-name { color: var(--text); }
+  .ex-sets { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--muted); }
+
+  /* ── Nutrition ── */
+  .nutrition-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media(max-width: 700px) { .nutrition-grid { grid-template-columns: 1fr; } }
+
+  .info-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 6px; padding: 20px;
+  }
+  .info-card-title {
+    font-size: 14px; font-weight: 700; color: var(--text);
+    margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .info-icon { font-size: 18px; }
+  .info-list { list-style: none; }
+  .info-list li {
+    padding: 6px 0; border-bottom: 1px solid rgba(31,38,51,0.8);
+    font-size: 13px; color: var(--muted);
+    display: flex; gap: 8px; align-items: flex-start;
+  }
+  .info-list li:last-child { border-bottom: none; }
+  .li-dot { color: var(--accent); font-size: 16px; line-height: 1.4; flex-shrink: 0; }
+
+  .avoid-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .avoid-tag {
+    background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.3);
+    color: #fca5a5; border-radius: 3px; padding: 5px 12px;
+    font-size: 12px; font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .if-timeline {
+    display: flex; align-items: stretch; border-radius: 4px; overflow: hidden;
+    margin-top: 12px; height: 36px;
+  }
+  .if-eating {
+    background: linear-gradient(135deg, rgba(0,212,255,0.2), rgba(0,212,255,0.1));
+    flex: 8; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: var(--accent); font-family: 'IBM Plex Mono', monospace;
+    border: 1px solid rgba(0,212,255,0.3); border-left: none;
+  }
+  .if-fasting {
+    background: rgba(31,38,51,0.6);
+    flex: 16; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; color: var(--muted); font-family: 'IBM Plex Mono', monospace;
+    border: 1px solid var(--border);
+  }
+
+  .meal-plan { list-style: none; }
+  .meal-row {
+    display: flex; gap: 16px; align-items: flex-start;
+    padding: 10px 0; border-bottom: 1px solid rgba(31,38,51,0.8);
+    font-size: 13px;
+  }
+  .meal-row:last-child { border-bottom: none; }
+  .meal-time { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--accent); width: 50px; flex-shrink: 0; padding-top: 1px; }
+  .meal-text { color: var(--text); }
+  .meal-macros { font-family: 'IBM Plex Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 2px; }
+
+  /* ── Progress ── */
+  .progress-form { display: grid; grid-template-columns: 1fr 1fr 1fr auto; gap: 12px; align-items: end; margin-bottom: 20px; }
+  @media(max-width: 700px) { .progress-form { grid-template-columns: 1fr 1fr; } }
+
+  .chart-wrap { background: var(--surface2); border: 1px solid var(--border); border-radius: 6px; padding: 20px; margin-bottom: 20px; }
+  .chart-controls { display: flex; gap: 8px; margin-bottom: 16px; }
+  .chart-toggle {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 3px; padding: 6px 14px;
+    font-size: 12px; font-family: 'IBM Plex Mono', monospace;
+    color: var(--muted); cursor: pointer; transition: all 0.15s;
+  }
+  .chart-toggle.active { background: rgba(0,212,255,0.1); border-color: var(--accent); color: var(--accent); }
+  #progressChart { width: 100%; max-height: 240px; display: block; }
+  .chart-empty { text-align: center; padding: 60px 0; color: var(--muted); font-size: 13px; font-family: 'IBM Plex Mono', monospace; }
+
+  .progress-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .progress-table th {
+    text-align: right; padding: 10px 12px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+    text-transform: uppercase; letter-spacing: 1px; color: var(--muted);
+    border-bottom: 1px solid var(--border);
+  }
+  .progress-table td { padding: 10px 12px; border-bottom: 1px solid rgba(31,38,51,0.6); }
+  .progress-table tr:last-child td { border-bottom: none; }
+  .btn-delete {
+    background: none; border: 1px solid rgba(239,68,68,0.3);
+    color: #fca5a5; border-radius: 3px; padding: 3px 8px;
+    font-size: 11px; cursor: pointer; transition: all 0.15s;
+  }
+  .btn-delete:hover { background: rgba(239,68,68,0.1); }
+
+  .milestone-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+  .milestone {
+    border: 1px solid var(--border); border-radius: 4px;
+    padding: 8px 14px; font-size: 12px; color: var(--muted);
+    font-family: 'IBM Plex Mono', monospace;
+    transition: all 0.3s;
+  }
+  .milestone.unlocked {
+    border-color: var(--accent3); color: var(--accent3);
+    background: rgba(16,185,129,0.08);
+  }
+  .milestone.unlocked::before { content: '✓ '; }
+
+  /* ── Science ── */
+  .science-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 32px; }
+  @media(max-width: 900px) { .science-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media(max-width: 600px) { .science-grid { grid-template-columns: 1fr; } }
+
+  .science-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 8px; padding: 22px; transition: border-color 0.2s;
+  }
+  .science-card:hover { border-color: rgba(0,212,255,0.25); }
+  .stat-big { font-size: 38px; font-weight: 900; color: var(--accent); line-height: 1; margin-bottom: 8px; }
+  .science-title { font-size: 14px; font-weight: 700; margin-bottom: 8px; }
+  .science-text { font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .cite-tag {
+    display: inline-block; margin-top: 10px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+    color: var(--accent2); border: 1px solid rgba(124,58,237,0.3);
+    padding: 2px 8px; border-radius: 2px;
+  }
+
+  .myths-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  @media(max-width: 600px) { .myths-grid { grid-template-columns: 1fr; } }
+
+  .myth-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border-radius: 6px; overflow: hidden; border: 1px solid var(--border); }
+  .myth-side {
+    padding: 16px; font-size: 13px; line-height: 1.5;
+  }
+  .myth-side.myth {
+    background: rgba(239,68,68,0.06); border-right: 2px solid var(--danger);
+    color: #fca5a5;
+  }
+  .myth-side.reality {
+    background: rgba(16,185,129,0.06);
+    color: #6ee7b7;
+  }
+  .myth-label {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px;
+    font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+    margin-bottom: 8px; display: block;
+  }
+  .myth-side.myth .myth-label { color: var(--danger); }
+  .myth-side.reality .myth-label { color: var(--accent3); }
+
+  /* ── Shared ── */
+  .section-header { margin-bottom: 24px; }
+  .section-header h2 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+  .section-header p { color: var(--muted); font-size: 14px; }
+
+  input[type="date"] {
+    background: var(--bg); border: 1px solid var(--border);
+    color: var(--text); border-radius: 4px; padding: 12px 16px;
+    font-size: 14px; font-family: 'Heebo', sans-serif;
+    width: 100%; direction: rtl;
+    color-scheme: dark;
+  }
+  input[type="date"]:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,212,255,0.1); }
+
+  .empty-state { text-align: center; padding: 40px; color: var(--muted); font-size: 13px; font-family: 'IBM Plex Mono', monospace; }
+
+  .tip-box {
+    background: rgba(0,212,255,0.05); border: 1px solid rgba(0,212,255,0.2);
+    border-radius: 6px; padding: 14px 18px;
+    font-size: 13px; color: var(--muted); line-height: 1.6;
+    margin-top: 16px;
+  }
+  .tip-box strong { color: var(--accent); }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="badge">Science-Backed Fitness Program</div>
+    <h1>בטן שש-קוביות</h1>
+    <p class="subtitle">תוכנית מלאה מבוססת מחקר — מחשבון, אימונים, תזונה ומעקב</p>
+    <div class="stat-chips">
+      <span class="stat-chip">10–12% שומן גוף לגבר</span>
+      <span class="stat-chip">גירעון 300–500 קק"ל</span>
+      <span class="stat-chip">12 שבועות לתוצאות</span>
+    </div>
+  </header>
+
+  <div class="tabs-bar">
+    <button class="tab-btn active" data-tab="calc" onclick="switchTab('calc')">מחשבון</button>
+    <button class="tab-btn" data-tab="train" onclick="switchTab('train')">תוכנית אימון</button>
+    <button class="tab-btn" data-tab="nutrition" onclick="switchTab('nutrition')">תזונה</button>
+    <button class="tab-btn" data-tab="progress" onclick="switchTab('progress')">מעקב התקדמות</button>
+    <button class="tab-btn" data-tab="science" onclick="switchTab('science')">מדע ומחקר</button>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════ TAB 1: CALCULATOR -->
+  <section id="tab-calc" class="tab-panel active">
+    <div class="main-card">
+      <div class="card-header">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span class="card-title">body_metrics_calculator.js</span>
+      </div>
+      <div class="card-body">
+        <div class="section-label">הזן את הפרטים שלך</div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="height">גובה (סנטימטר)</label>
+            <input type="number" id="height" placeholder="175" min="140" max="220">
+          </div>
+          <div class="form-group">
+            <label for="weight">משקל (קילוגרם)</label>
+            <input type="number" id="weight" placeholder="80" min="40" max="200">
+          </div>
+          <div class="form-group">
+            <label for="age">גיל</label>
+            <input type="number" id="age" placeholder="30" min="16" max="80">
+          </div>
+          <div class="form-group">
+            <label for="sex">מין</label>
+            <select id="sex">
+              <option value="male">זכר</option>
+              <option value="female">נקבה</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column: span 2">
+            <label for="activity">רמת פעילות שבועית</label>
+            <select id="activity">
+              <option value="1.2">יושבני — כמעט ללא פעילות</option>
+              <option value="1.375">קל — 1–3 אימונים בשבוע</option>
+              <option value="1.55" selected>בינוני — 3–5 אימונים בשבוע</option>
+              <option value="1.725">אקטיבי — 6–7 אימונים בשבוע</option>
+              <option value="1.9">אתלט — אימונים פעמיים ביום</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="calculate()">חשב את התוכנית האישית שלי</button>
+
+        <div class="divider"></div>
+
+        <div id="resultsSection" class="results-section">
+          <div class="section-label" style="margin-bottom:20px">תוצאות ניתוח הגוף שלך</div>
+
+          <div class="results-grid">
+            <div class="metric-card">
+              <div class="metric-val" id="resBMI">—</div>
+              <div class="metric-label">BMI</div>
+              <div class="metric-sub" id="resBMIcat">—</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-val" id="resBF">—</div>
+              <div class="metric-label">שומן גוף מוערך %</div>
+              <div class="metric-sub" id="resBFcat">—</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-val" id="resTDEE">—</div>
+              <div class="metric-label">TDEE — קלוריות/יום</div>
+              <div class="metric-sub">שריפה יומית כוללת</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-val" id="resTarget">—</div>
+              <div class="metric-label">יעד קלורי — קק"ל</div>
+              <div class="metric-sub">גירעון 400 קק"ל</div>
+            </div>
+          </div>
+
+          <div class="weeks-bar-wrap">
+            <div class="weeks-bar-label">זמן מוערך להגעה ל-<span id="targetBFDisplay">11</span>% שומן (ראיית אבי)</div>
+            <div class="weeks-bar-track">
+              <div class="weeks-bar-fill" id="weeksBarFill" style="width:0%"></div>
+            </div>
+            <div class="weeks-bar-text" id="weeksText">—</div>
+            <div class="weeks-bar-sub" id="weeksSub">—</div>
+          </div>
+
+          <div class="macros-card">
+            <div class="macros-title">חלוקת מאקרונוטריאנטים מומלצת</div>
+            <div class="macro-row macro-protein">
+              <div class="macro-name" style="color:var(--accent)">חלבון</div>
+              <div class="macro-bar-wrap"><div class="macro-bar" id="barProtein" style="width:0%"></div></div>
+              <div class="macro-grams" id="gProtein" style="color:var(--accent)">—</div>
+            </div>
+            <div class="macro-row macro-carbs">
+              <div class="macro-name" style="color:var(--accent2)">פחמימות</div>
+              <div class="macro-bar-wrap"><div class="macro-bar" id="barCarbs" style="width:0%"></div></div>
+              <div class="macro-grams" id="gCarbs" style="color:var(--accent2)">—</div>
+            </div>
+            <div class="macro-row macro-fat">
+              <div class="macro-name" style="color:var(--gold)">שומן</div>
+              <div class="macro-bar-wrap"><div class="macro-bar" id="barFat" style="width:0%"></div></div>
+              <div class="macro-grams" id="gFat" style="color:var(--gold)">—</div>
+            </div>
+          </div>
+
+          <div class="tip-box" id="calcTip" style="margin-top:16px"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ TAB 2: TRAINING -->
+  <section id="tab-train" class="tab-panel">
+    <div class="main-card">
+      <div class="card-header">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span class="card-title">training_program_12w.js</span>
+      </div>
+      <div class="card-body">
+        <div class="section-header">
+          <h2>תוכנית 12 שבועות</h2>
+          <p>שלושה שלבים פרוגרסיביים — יסודות, עצימות, שיא</p>
+        </div>
+
+        <div class="phase-legend">
+          <div class="phase-dot-wrap"><div class="phase-dot" style="background:#7dd3fc"></div><span>שלב 1: יסודות (1–4)</span></div>
+          <div class="phase-dot-wrap"><div class="phase-dot" style="background:#d8b4fe"></div><span>שלב 2: עצימות (5–8)</span></div>
+          <div class="phase-dot-wrap"><div class="phase-dot" style="background:#6ee7b7"></div><span>שלב 3: שיא (9–12)</span></div>
+        </div>
+
+        <div class="week-pills" id="weekPills"></div>
+
+        <div id="weekDisplay"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ TAB 3: NUTRITION -->
+  <section id="tab-nutrition" class="tab-panel">
+    <div class="main-card">
+      <div class="card-header">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span class="card-title">nutrition_guide.json</span>
+      </div>
+      <div class="card-body">
+        <div class="section-header">
+          <h2>מדריך תזונה לחיטוב</h2>
+          <p>80% מהתוצאה מגיע מהמטבח — לא מחדר הכושר</p>
+        </div>
+
+        <div class="nutrition-grid" style="margin-bottom:20px">
+          <div class="info-card">
+            <div class="info-card-title"><span class="info-icon">🔥</span> אסטרטגיית גירעון קלורי</div>
+            <ul class="info-list">
+              <li><span class="li-dot">›</span>גירעון של <strong style="color:var(--accent)">300–500 קק"ל ביום</strong> — לא פחות, לא יותר</li>
+              <li><span class="li-dot">›</span>גירעון גדול מדי שורף שריר ומאט את חילוף החומרים</li>
+              <li><span class="li-dot">›</span>כ-0.5–1 ק"ג ירידה שבועית — קצב מיטבי לשמירת שריר</li>
+              <li><span class="li-dot">›</span>השתמש במחשבון כדי לחשב את TDEE האישי שלך</li>
+            </ul>
+          </div>
+          <div class="info-card">
+            <div class="info-card-title"><span class="info-icon">💪</span> חלבון — המרכיב הקריטי</div>
+            <ul class="info-list">
+              <li><span class="li-dot">›</span><strong style="color:var(--accent)">1.6–2.2 גרם חלבון לכל ק"ג גוף ביום</strong></li>
+              <li><span class="li-dot">›</span>חזה עוף (100g → 31g חלבון)</li>
+              <li><span class="li-dot">›</span>ביצה שלמה (1 ביצה → 6g חלבון)</li>
+              <li><span class="li-dot">›</span>יוגורט יווני (100g → 10g חלבון)</li>
+              <li><span class="li-dot">›</span>דג טונה (100g → 26g חלבון)</li>
+              <li><span class="li-dot">›</span>קוטג' 5% (100g → 11g חלבון)</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="nutrition-grid" style="margin-bottom:20px">
+          <div class="info-card">
+            <div class="info-card-title"><span class="info-icon">🚫</span> מזונות שצריך להימנע</div>
+            <p style="font-size:13px; color:var(--muted); margin-bottom:12px">אלו הסוכלים הגדולים ביותר של חיטוב בטן:</p>
+            <div class="avoid-tags">
+              <span class="avoid-tag">אלכוהול</span>
+              <span class="avoid-tag">סוכר מזוקק</span>
+              <span class="avoid-tag">שמנים מהודרים</span>
+              <span class="avoid-tag">לחם לבן</span>
+              <span class="avoid-tag">משקאות ממותקים</span>
+              <span class="avoid-tag">מזון מעובד</span>
+              <span class="avoid-tag">גלידה יומית</span>
+              <span class="avoid-tag">צ'יפס / נשנושים</span>
+            </div>
+            <div class="tip-box" style="margin-top:14px"><strong>אלכוהול</strong> הוא אויב מספר 1 — 7 קק"ל לגרם, מוריד טסטוסטרון, מאט שריפת שומן ב-73% לשעות ארוכות.</div>
+          </div>
+          <div class="info-card">
+            <div class="info-card-title"><span class="info-icon">⏰</span> צום לסירוגין 16:8</div>
+            <p style="font-size:13px; color:var(--muted); margin-bottom:12px">אחת הדרכים הקלות ביותר להקטין קלוריות בצורה טבעית:</p>
+            <div class="if-timeline">
+              <div class="if-eating">8h אכילה</div>
+              <div class="if-fasting">16h צום (שינה + בוקר)</div>
+            </div>
+            <ul class="info-list" style="margin-top:12px">
+              <li><span class="li-dot">›</span>חלון אכילה לדוגמה: 12:00 – 20:00</li>
+              <li><span class="li-dot">›</span>מותר: קפה שחור, תה, מים</li>
+              <li><span class="li-dot">›</span>מוריד אינסולין — מקדם שריפת שומן</li>
+              <li><span class="li-dot">›</span>מחקר 2020: הפחתה ספונטנית של 500 קק"ל ביום</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="main-card" style="box-shadow:none">
+          <div class="card-header">
+            <div class="dot dot-green"></div>
+            <span class="card-title">sample_meal_plan.json — תפריט יומי לדוגמה (1,800 קק"ל)</span>
+          </div>
+          <div class="card-body" style="padding:20px">
+            <ul class="meal-plan">
+              <li class="meal-row">
+                <span class="meal-time">12:00</span>
+                <div>
+                  <div class="meal-text">ארוחת צהריים: 150g חזה עוף + 100g אורז מלא + ירקות בגריל</div>
+                  <div class="meal-macros">~580 קק"ל · חלבון 48g · פחמימות 58g · שומן 8g</div>
+                </div>
+              </li>
+              <li class="meal-row">
+                <span class="meal-time">15:30</span>
+                <div>
+                  <div class="meal-text">חטיף: 200g יוגורט יווני 0% + חופן שקדים (20g)</div>
+                  <div class="meal-macros">~280 קק"ל · חלבון 22g · פחמימות 14g · שומן 14g</div>
+                </div>
+              </li>
+              <li class="meal-row">
+                <span class="meal-time">18:00</span>
+                <div>
+                  <div class="meal-text">לפני אימון: 2 ביצים קשות + פרוסת לחם מחיטה מלאה</div>
+                  <div class="meal-macros">~250 קק"ל · חלבון 16g · פחמימות 18g · שומן 10g</div>
+                </div>
+              </li>
+              <li class="meal-row">
+                <span class="meal-time">20:00</span>
+                <div>
+                  <div class="meal-text">ארוחת ערב: 150g סלמון + ירקות מאודים + 1/2 בטטה</div>
+                  <div class="meal-macros">~490 קק"ל · חלבון 36g · פחמימות 28g · שומן 22g</div>
+                </div>
+              </li>
+            </ul>
+            <div class="tip-box"><strong>סה"כ:</strong> ~1,600 קק"ל · חלבון 122g · פחמימות 118g · שומן 54g — התאם לפי המחשבון האישי שלך.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ TAB 4: PROGRESS -->
+  <section id="tab-progress" class="tab-panel">
+    <div class="main-card">
+      <div class="card-header">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span class="card-title">progress_tracker.json</span>
+      </div>
+      <div class="card-body">
+        <div class="section-header">
+          <h2>מעקב התקדמות שבועי</h2>
+          <p>מה שנמדד — משתפר. רשום בכל שבוע.</p>
+        </div>
+
+        <div class="progress-form">
+          <div class="form-group">
+            <label>תאריך</label>
+            <input type="date" id="pDate">
+          </div>
+          <div class="form-group">
+            <label>משקל (ק"ג)</label>
+            <input type="number" id="pWeight" placeholder="80.5" step="0.1">
+          </div>
+          <div class="form-group">
+            <label>מותניים (ס"מ)</label>
+            <input type="number" id="pWaist" placeholder="88" step="0.5">
+          </div>
+          <div class="form-group">
+            <label>&nbsp;</label>
+            <button class="btn-secondary" onclick="addEntry()">+ הוסף</button>
+          </div>
+        </div>
+
+        <div class="chart-wrap">
+          <div class="chart-controls">
+            <button class="chart-toggle active" id="toggleWeight" onclick="setChartMode('weight')">משקל</button>
+            <button class="chart-toggle" id="toggleWaist" onclick="setChartMode('waist')">מותניים</button>
+          </div>
+          <div id="chartContainer">
+            <div class="chart-empty" id="chartEmpty">הוסף לפחות 2 מדידות כדי לראות את הגרף שלך</div>
+            <canvas id="progressChart" style="display:none"></canvas>
+          </div>
+        </div>
+
+        <div style="background:var(--surface2); border:1px solid var(--border); border-radius:6px; overflow:hidden; margin-bottom:20px">
+          <table class="progress-table">
+            <thead>
+              <tr>
+                <th>תאריך</th>
+                <th>משקל (ק"ג)</th>
+                <th>מותניים (ס"מ)</th>
+                <th>שינוי במשקל</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="progressBody">
+              <tr><td colspan="5" class="empty-state">אין נתונים עדיין — הוסף מדידה ראשונה</td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="section-label">אבני דרך</div>
+        <div class="milestone-grid">
+          <div class="milestone" id="ms-first_entry">מדידה ראשונה</div>
+          <div class="milestone" id="ms-week1">שבוע ראשון הושלם</div>
+          <div class="milestone" id="ms-minus2kg">ירדת 2 ק"ג</div>
+          <div class="milestone" id="ms-minus5kg">ירדת 5 ק"ג</div>
+          <div class="milestone" id="ms-minus5cm">ירדת 5 ס"מ במותניים</div>
+          <div class="milestone" id="ms-consistency">4 שבועות רצופים</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════ TAB 5: SCIENCE -->
+  <section id="tab-science" class="tab-panel">
+    <div class="main-card">
+      <div class="card-header">
+        <div class="dot dot-red"></div>
+        <div class="dot dot-yellow"></div>
+        <div class="dot dot-green"></div>
+        <span class="card-title">research_database.json</span>
+      </div>
+      <div class="card-body">
+        <div class="section-header">
+          <h2>המדע מאחורי שש-הקוביות</h2>
+          <p>עובדות מוכחות ממחקרים, לא שיווק</p>
+        </div>
+
+        <div class="science-grid">
+          <div class="science-card">
+            <div class="stat-big">10%</div>
+            <div class="science-title">סף שומן גוף לראיית אבי</div>
+            <div class="science-text">לגברים אבי הבטן נראים בין 10–12% שומן גוף, לנשים 16–19%. לכולם יש את שריר ה-Rectus Abdominis — רק שכבת שומן מסתירה אותו.</div>
+            <span class="cite-tag">Lohman et al., 1992</span>
+          </div>
+          <div class="science-card">
+            <div class="stat-big">400</div>
+            <div class="science-title">קלוריות — הגירעון המיטבי ביום</div>
+            <div class="science-text">גירעון של 300–500 קק"ל ביום שורף שומן תוך שמירה על מסת שריר. גירעון גדול מדי מפעיל קטבוליזם וכוויית שריר — ההיפך ממה שרוצים.</div>
+            <span class="cite-tag">Hall et al., NEJM 2012</span>
+          </div>
+          <div class="science-card">
+            <div class="stat-big">2g</div>
+            <div class="science-title">חלבון לק"ג גוף — בזמן חיטוב</div>
+            <div class="science-text">מחקרי מטא-אנליזה מוכיחים: צריכת 1.6–2.2g חלבון/ק"ג שומרת על שריר בזמן גירעון קלורי ומגבירה שובע — מפחיתה נשנושים.</div>
+            <span class="cite-tag">Morton et al., 2018</span>
+          </div>
+          <div class="science-card">
+            <div class="stat-big">25%</div>
+            <div class="science-title">HIIT שורף יותר שומן מאירובי רגיל</div>
+            <div class="science-text">Tabata 1996: 4 דקות HIIT שווה ל-45 דקות ריצה מתונה. ה-EPOC (שריפה לאחר האימון) ממשיך עד 24 שעות לאחר HIIT עצים.</div>
+            <span class="cite-tag">Tabata et al., 1996</span>
+          </div>
+          <div class="science-card">
+            <div class="stat-big">73%</div>
+            <div class="science-title">עלייה בקורטיזול — אויב השומן הבטני</div>
+            <div class="science-text">פחות מ-6 שעות שינה מעלה קורטיזול — הורמון שמגביר אחסון שומן ויסצרלי (פנימי) דווקא באזור הבטן. 7–9 שעות שינה חיוניות כמו האימון.</div>
+            <span class="cite-tag">Pejovic et al., J. Clin. Endocr. 2010</span>
+          </div>
+          <div class="science-card">
+            <div class="stat-big">×3</div>
+            <div class="science-title">דדליפט מפעיל את הליבה פי 3 מכפיפות</div>
+            <div class="science-text">מחקרי EMG מראים: דדליפט, סקוואט ונסיקות לעמידה על ידיים מפעילים את שרירי הבטן בעצימות גבוהה בהרבה מכפיפות בטן קלאסיות.</div>
+            <span class="cite-tag">Escamilla et al., JOSPT 2010</span>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <div class="section-label" style="margin-bottom:20px">מיתוסים ומציאות — אמת vs. שקר</div>
+
+        <div class="myths-grid">
+          <div class="myth-pair">
+            <div class="myth-side myth">
+              <span class="myth-label">מיתוס</span>
+              כפיפות בטן ישרפו שומן בבטן
+            </div>
+            <div class="myth-side reality">
+              <span class="myth-label">מציאות</span>
+              אין "Spot Reduction" — גוף שורף שומן מכלל הגוף. רק גירעון קלורי מוריד שומן מהבטן.
+            </div>
+          </div>
+          <div class="myth-pair">
+            <div class="myth-side myth">
+              <span class="myth-label">מיתוס</span>
+              צריך 500 כפיפות ביום לאבי
+            </div>
+            <div class="myth-side reality">
+              <span class="myth-label">מציאות</span>
+              ליבה חזקה נבנית מ-10–15 חזרות קשות של Ab Wheel ו-Hollow Body. נפח לא מפצה על עצימות.
+            </div>
+          </div>
+          <div class="myth-pair">
+            <div class="myth-side myth">
+              <span class="myth-label">מיתוס</span>
+              אם אני רזה, בטח יש לי שש-קוביות
+            </div>
+            <div class="myth-side reality">
+              <span class="myth-label">מציאות</span>
+              צריך גם לבנות את שריר הרקטוס עצמו. גוף רזה ללא אימוני ליבה = בטן שטוחה, לא מוגדרת.
+            </div>
+          </div>
+          <div class="myth-pair">
+            <div class="myth-side myth">
+              <span class="myth-label">מיתוס</span>
+              פחמימות הן האויב של חיטוב
+            </div>
+            <div class="myth-side reality">
+              <span class="myth-label">מציאות</span>
+              סך הקלוריות קובע — לא המקרו. פחמימות מורכבות (אורז, בטטה) תומכות באימון ושומרות שריר.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /container -->
+
+<script>
+// ──────────────────────────────────────────────────────────
+// STATE
+// ──────────────────────────────────────────────────────────
+const state = {
+  currentTab: 'calc',
+  currentWeek: 1,
+  chartMode: 'weight',
+  progress: []
+};
+
+const STORAGE_KEY = 'ab_progress_v1';
+
+// ──────────────────────────────────────────────────────────
+// NAVIGATION
+// ──────────────────────────────────────────────────────────
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  document.querySelector('[data-tab="' + name + '"]').classList.add('active');
+  state.currentTab = name;
+  if (name === 'progress') { renderProgressTable(); renderChart(); checkMilestones(); }
+  if (name === 'train' && !document.getElementById('weekPills').hasChildNodes()) buildTrainingUI();
+}
+
+// ──────────────────────────────────────────────────────────
+// CALCULATOR
+// ──────────────────────────────────────────────────────────
+function calculate() {
+  const h = parseFloat(document.getElementById('height').value);
+  const w = parseFloat(document.getElementById('weight').value);
+  const a = parseFloat(document.getElementById('age').value);
+  const sex = document.getElementById('sex').value;
+  const act = parseFloat(document.getElementById('activity').value);
+
+  if (!h || !w || !a || h < 140 || w < 40 || a < 16) {
+    alert('אנא מלא את כל השדות בצורה תקינה');
+    return;
+  }
+
+  // BMI
+  const bmi = w / Math.pow(h / 100, 2);
+
+  // Body Fat % — Deurenberg formula
+  const bf = sex === 'male'
+    ? 1.20 * bmi + 0.23 * a - 16.2
+    : 1.20 * bmi + 0.23 * a - 5.4;
+  const bfClamped = Math.max(3, Math.min(50, bf));
+
+  // TDEE — Mifflin-St Jeor
+  const bmr = sex === 'male'
+    ? 10 * w + 6.25 * h - 5 * a + 5
+    : 10 * w + 6.25 * h - 5 * a - 161;
+  const tdee = Math.round(bmr * act);
+  const target = tdee - 400;
+
+  // Macros
+  const protein = Math.round(w * 2.0);
+  const fatG = Math.round(target * 0.25 / 9);
+  const carbsG = Math.max(0, Math.round((target - protein * 4 - fatG * 9) / 4));
+
+  // Weeks to visible abs
+  const targetBF = sex === 'male' ? 11 : 18;
+  document.getElementById('targetBFDisplay').textContent = targetBF;
+  let weeksText, weeksSub, barPct;
+
+  if (bfClamped <= targetBF) {
+    weeksText = 'כבר גלוי! 💪';
+    weeksSub = `אתה ב-${bfClamped.toFixed(1)}% שומן — ממשיך לבנות שריר עכשיו`;
+    barPct = 100;
+  } else {
+    const fatMass = w * (bfClamped / 100);
+    const targetFatMass = w * (targetBF / 100);
+    const fatToLose = fatMass - targetFatMass;
+    const weeklyLoss = (400 * 7) / 7700;
+    const weeks = Math.ceil(fatToLose / weeklyLoss);
+    const cappedWeeks = Math.min(weeks, 52);
+    weeksText = cappedWeeks + ' שבועות';
+    weeksSub = `לאיבוד ${fatToLose.toFixed(1)} ק"ג שומן (כ-${weeklyLoss.toFixed(2)} ק"ג/שבוע)`;
+    barPct = Math.max(5, Math.round((1 - cappedWeeks / 52) * 100));
+  }
+
+  // BMI category
+  let bmiCat = bmi < 18.5 ? 'תת-משקל' : bmi < 25 ? 'תקין' : bmi < 30 ? 'עודף משקל' : 'השמנה';
+  let bfCat = bfClamped < targetBF ? 'ממוקד' : bfClamped < targetBF + 5 ? 'קרוב ליעד' : bfClamped < 25 ? 'נורמלי' : 'גבוה';
+
+  // Max grams for bar width calc
+  const maxG = Math.max(protein, carbsG, fatG) || 1;
+
+  // Inject results
+  document.getElementById('resBMI').textContent = bmi.toFixed(1);
+  document.getElementById('resBMIcat').textContent = bmiCat;
+  document.getElementById('resBF').textContent = bfClamped.toFixed(1) + '%';
+  document.getElementById('resBFcat').textContent = bfCat;
+  document.getElementById('resTDEE').textContent = tdee.toLocaleString();
+  document.getElementById('resTarget').textContent = target.toLocaleString();
+  document.getElementById('weeksText').textContent = weeksText;
+  document.getElementById('weeksSub').textContent = weeksSub;
+  document.getElementById('weeksBarFill').style.width = barPct + '%';
+  document.getElementById('gProtein').textContent = protein + 'g';
+  document.getElementById('gCarbs').textContent = carbsG + 'g';
+  document.getElementById('gFat').textContent = fatG + 'g';
+  document.getElementById('barProtein').style.width = Math.round(protein / maxG * 100) + '%';
+  document.getElementById('barCarbs').style.width = Math.round(carbsG / maxG * 100) + '%';
+  document.getElementById('barFat').style.width = Math.round(fatG / maxG * 100) + '%';
+
+  // Tip
+  let tip = '';
+  if (bfClamped > 25) tip = '<strong>עצה:</strong> עם שומן גוף גבוה, התזונה היא 90% מהמשחק. התמקד קודם בגירעון קלורי ובחלבון — האימונים יגיעו.';
+  else if (bfClamped > targetBF + 5) tip = '<strong>עצה:</strong> אתה בדרך הנכונה! שלב HIIT פעמיים בשבוע עם אימוני כוח. התמדה בגירעון הקלורי היא המפתח.';
+  else if (bfClamped > targetBF) tip = '<strong>עצה:</strong> אתה קרוב מאוד! אל תחתוך קלוריות בצורה דרמטית — שמור על שריר עם הרבה חלבון ואימוני כוח.';
+  else tip = '<strong>מצוין!</strong> אתה כבר באזור ה-Six-Pack. עכש תמקד בבניית מסת שריר — העלה קלוריות ב-200 ושמור על חלבון גבוה.';
+  document.getElementById('calcTip').innerHTML = tip;
+
+  document.getElementById('resultsSection').classList.add('visible');
+}
+
+// ──────────────────────────────────────────────────────────
+// TRAINING PROGRAM DATA
+// ──────────────────────────────────────────────────────────
+const EX = {
+  plank:    { he: 'פלאנק', sets: 3, reps: '45s' },
+  sidePlank:{ he: 'פלאנק צד', sets: 3, reps: '30s' },
+  hollow:   { he: 'Hollow Body Hold', sets: 3, reps: '30s' },
+  deadBug:  { he: 'Dead Bug', sets: 3, reps: '10×/צד' },
+  mountain: { he: 'Mountain Climbers', sets: 3, reps: '30s' },
+  crunch:   { he: 'Crunch בקצב איטי', sets: 3, reps: '15×' },
+  legRaise: { he: 'Leg Raise שכיבה', sets: 3, reps: '12×' },
+  abWheel:  { he: 'Ab Wheel Rollout', sets: 3, reps: '6×' },
+  hangLeg:  { he: 'Hanging Leg Raise', sets: 3, reps: '10×' },
+  cableCrunch: { he: 'Cable Crunch', sets: 4, reps: '15×' },
+  squat:    { he: 'סקוואט', sets: 4, reps: '8×' },
+  deadlift: { he: 'דדליפט', sets: 4, reps: '5×' },
+  row:      { he: 'חתירה כפוף', sets: 4, reps: '8×' },
+  press:    { he: 'לחיצת חזה', sets: 4, reps: '8×' },
+  lunges:   { he: 'לאנג\'ס', sets: 3, reps: '10×/רגל' },
+  pullup:   { he: 'מתח רחב', sets: 4, reps: 'Max' },
+};
+
+const HIIT_PROTOCOLS = {
+  tabata: [
+    { he: 'Tabata — 8 סבבים', sets: 8, reps: '20s on / 10s off' },
+    { he: 'בורפי / ספרינט / קפיצות', sets: 1, reps: 'בחר תרגיל אחד' },
+  ],
+  circuit: [
+    { he: 'סרקיט 5 תחנות', sets: 4, reps: '40s פעיל / 20s מנוחה' },
+    { he: 'בורפי + ספרינט + קפיצת קרפ', sets: 1, reps: 'ללא הפסקות' },
+  ],
+  amrap: [
+    { he: 'AMRAP 15 דקות', sets: 1, reps: 'כמה שיותר סבבים' },
+    { he: 'בורפי ×10 + Leg Raise ×15 + פלאנק 30s', sets: 1, reps: 'סבב אחד' },
+  ],
+};
+
+const REST_DAY = [{ he: 'מנוחה פעילה — הליכה / מתיחות', sets: 1, reps: '20–30 דק' }];
+
+function makeDay(name, type, exercises) {
+  return { name, type, exercises };
+}
+
+const PROGRAM = [
+  // PHASE 1 — שלב יסודות (שבועות 1–4)
+  { // week 1
+    phase: 1,
+    days: [
+      makeDay('ראשון', 'core', [EX.plank, EX.crunch, EX.deadBug, EX.mountain]),
+      makeDay('שני',   'compound', [EX.squat, EX.row, EX.lunges]),
+      makeDay('שלישי', 'hiit', HIIT_PROTOCOLS.tabata),
+      makeDay('רביעי', 'rest', REST_DAY),
+      makeDay('חמישי', 'core', [EX.hollow, EX.legRaise, EX.sidePlank, EX.mountain]),
+      makeDay('שישי',  'compound', [EX.press, EX.deadlift]),
+      makeDay('שבת',   'rest', REST_DAY),
+    ]
+  },
+  { // week 2
+    phase: 1,
+    days: [
+      makeDay('ראשון', 'core', [EX.plank, EX.deadBug, EX.legRaise, EX.mountain]),
+      makeDay('שני',   'compound', [EX.squat, EX.row, EX.lunges]),
+      makeDay('שלישי', 'hiit', HIIT_PROTOCOLS.circuit),
+      makeDay('רביעי', 'rest', REST_DAY),
+      makeDay('חמישי', 'core', [EX.hollow, EX.crunch, EX.sidePlank, EX.deadBug]),
+      makeDay('שישי',  'compound', [EX.press, EX.deadlift, EX.row]),
+      makeDay('שבת',   'rest', REST_DAY),
+    ]
+  },
+  { // week 3
+    phase: 1,
+    days: [
+      makeDay('ראשון', 'core', [EX.plank, EX.hollow, EX.deadBug, EX.mountain]),
+      makeDay('שני',   'compound', [EX.squat, EX.deadlift, EX.lunges]),
+      makeDay('שלישי', 'hiit', HIIT_PROTOCOLS.tabata),
+      makeDay('רביעי', 'core', [EX.sidePlank, EX.crunch, EX.legRaise]),
+      makeDay('חמישי', 'rest', REST_DAY),
+      makeDay('שישי',  'compound', [EX.press, EX.row, EX.pullup]),
+      makeDay('שבת',   'rest', REST_DAY),
+    ]
+  },
+  { // week 4
+    phase: 1,
+    days: [
+      makeDay('ראשון', 'core', [EX.plank, EX.hollow, EX.mountain, EX.deadBug]),
+      makeDay('שני',   'compound', [EX.squat, EX.deadlift, EX.row]),
+      makeDay('שלישי', 'hiit', HIIT_PROTOCOLS.amrap),
+      makeDay('רביעי', 'core', [EX.sidePlank, EX.legRaise, EX.crunch]),
+      makeDay('חמישי', 'compound', [EX.press, EX.lunges, EX.pullup]),
+      makeDay('שישי',  'hiit', HIIT_PROTOCOLS.circuit),
+      makeDay('שבת',   'rest', REST_DAY),
+    ]
+  },
+
+  // PHASE 2 — עצימות (שבועות 5–8)
+  { // week 5
+    phase: 2,
+    days: [
+      makeDay('ראשון', 'core', [EX.hollow, EX.abWheel, EX.mountain, EX.deadBug]),
+      makeDay('שני',   'compound', [EX.squat, EX.deadlift, EX.row]),
+      makeDay('שלישי', 'hiit', HIIT_PROTOCOLS.tabata),
+      makeDay('רביעי', 'core', [EX.hangLeg, EX.cableCrunch, EX.sidePlank]),
+      makeDay('חמישי', 'compound', [EX.press, EX.pullup, EX.lunges]),
+      makeDay('שישי',  'hiit', HIIT_PROTOCOLS.circuit),
+      makeDay('שבת',   'rest', REST_DAY),
+    ]
+  },
+  { // week 6
+    phase: 2,
+    days: [
+      makeDay('ראשון', 'core', [EX.abWheel, EX.hangLeg, EX.hollow, EX.mountain]),
+      makeDay('שני',   'compound', [EX.squat, EX.deadlift, EX.row]),
+      makeDay('שלישי', 'hiit', HIIT_PROTOCOLS.amrap),
+      makeDay('רביעי', 'core', [EX.cableCrunch, EX.deadBug, EX.sidePlank]),
+      makeDay('חמישי', 'compound', [EX.press, EX.pullup, EX.lunges]),
+      makeDay('שישי',  'hiit', HIIT_PROTOCOLS.tabata),
+      makeDay('שבת',   'rest', REST_DAY),
+    ]
+  },
+  { // week 7
+    phase: 2,
+    days: [
+      makeDay('ראשון', 'core', [EX.abWheel, EX.hangLeg, EX.hollow, EX.mountain]),
+      makeDay('שני',   'compound', [EX.squat, EX.deadlift, EX.row]),
+      makeDay('שלישי', 'hiit', HIIT_PROTOCOLS.circuit),
+      makeDay('רביעי', 'core', [EX.cableCrunch, EX.hollow, EX.sidePlank, EX.deadBug]),
+      makeDay('חמישי', 'compound', [EX.press, EX.pullup, EX.lunges]),
+      makeDay('שישי',  'hiit', HIIT_PROTOCOLS.amrap),
+      makeDay('שבת',   'rest', REST_DAY),
+    ]
+  },
+  { // week 8
+    phase: 2,
+    days: [
+      makeDay('ראשון', 'core', [EX.abWheel, EX.hangLeg, EX.hollow, EX.mountain]),
+      makeDay('שני',   'compound', [EX.squat, EX.deadlift, EX.row, EX.pullup]),
+      makeDay('שלישי', 'hiit', HIIT_PROTOCOLS.tabata),
+      makeDay('רביעי', 'core', [EX.cableCrunch, EX.hangLeg, EX.sidePlank, EX.deadBug]),
+      makeDay('חמישי', 'compound', [EX.press, EX.lunges, EX.squat]),
+      makeDay('שישי',  'hiit', HIIT_PROTOCOLS.circuit),
+      makeDay('שבת',   'core', [EX.hollow, EX.abWheel, EX.mountain]),
+    ]
+  },
+
+  // PHASE 3 — שיא (שבועות 9–12)
+  { // week 9
+    phase: 3,
+    days: [
+      makeDay('ראשון', 'core', [EX.abWheel, EX.hangLeg, EX.hollow, EX.cableCrunch]),
+      makeDay('שני',   'compound', [EX.deadlift, EX.squat, EX.pullup, EX.row]),
+      makeDay('שלישי', 'hiit', HIIT_PROTOCOLS.tabata),
+      makeDay('רביעי', 'core', [EX.hangLeg, EX.cableCrunch, EX.hollow, EX.mountain]),
+      makeDay('חמישי', 'compound', [EX.press, EX.lunges, EX.row]),
+      makeDay('שישי',  'hiit', HIIT_PROTOCOLS.amrap),
+      makeDay('שבת',   'core', [EX.abWheel, EX.sidePlank, EX.deadBug]),
+    ]
+  },
+  { // week 10
+    phase: 3,
+    days: [
+      makeDay('ראשון', 'core', [EX.abWheel, EX.hangLeg, EX.cableCrunch, EX.hollow]),
+      makeDay('שני',   'compound', [EX.deadlift, EX.squat, EX.pullup, EX.row]),
+      makeDay('שלישי', 'hiit', HIIT_PROTOCOLS.circuit),
+      makeDay('רביעי', 'core', [EX.hangLeg, EX.cableCrunch, EX.abWheel, EX.mountain]),
+      makeDay('חמישי', 'compound', [EX.press, EX.lunges, EX.row, EX.pullup]),
+      makeDay('שישי',  'hiit', HIIT_PROTOCOLS.tabata),
+      makeDay('שבת',   'core', [EX.hollow, EX.sidePlank, EX.deadBug]),
+    ]
+  },
+  { // week 11
+    phase: 3,
+    days: [
+      makeDay('ראשון', 'core', [EX.abWheel, EX.hangLeg, EX.cableCrunch, EX.hollow]),
+      makeDay('שני',   'compound', [EX.deadlift, EX.squat, EX.pullup]),
+      makeDay('שלישי', 'hiit', HIIT_PROTOCOLS.amrap),
+      makeDay('רביעי', 'core', [EX.hangLeg, EX.cableCrunch, EX.abWheel, EX.mountain]),
+      makeDay('חמישי', 'compound', [EX.press, EX.row, EX.lunges]),
+      makeDay('שישי',  'hiit', HIIT_PROTOCOLS.circuit),
+      makeDay('שבת',   'core', [EX.hollow, EX.hangLeg, EX.deadBug]),
+    ]
+  },
+  { // week 12
+    phase: 3,
+    days: [
+      makeDay('ראשון', 'core', [EX.abWheel, EX.hangLeg, EX.cableCrunch, EX.hollow]),
+      makeDay('שני',   'compound', [EX.deadlift, EX.squat, EX.pullup, EX.row]),
+      makeDay('שלישי', 'hiit', HIIT_PROTOCOLS.tabata),
+      makeDay('רביעי', 'core', [EX.hangLeg, EX.cableCrunch, EX.abWheel, EX.mountain]),
+      makeDay('חמישי', 'compound', [EX.press, EX.lunges, EX.row, EX.pullup]),
+      makeDay('שישי',  'hiit', HIIT_PROTOCOLS.amrap),
+      makeDay('שבת',   'core', [EX.hollow, EX.abWheel, EX.hangLeg, EX.mountain]),
+    ]
+  },
+];
+
+const PHASE_NAMES = { 1: 'שלב 1 — יסודות', 2: 'שלב 2 — עצימות', 3: 'שלב 3 — שיא' };
+const PHASE_CLASS = { 1: 'p1', 2: 'p2', 3: 'p3' };
+const TYPE_LABEL  = { core: 'ליבה', hiit: 'HIIT', compound: 'כוח', rest: 'מנוחה' };
+const TYPE_CLASS  = { core: 'type-core', hiit: 'type-hiit', compound: 'type-compound', rest: 'type-rest' };
+
+function buildTrainingUI() {
+  const pillsEl = document.getElementById('weekPills');
+  pillsEl.innerHTML = '';
+  for (let i = 1; i <= 12; i++) {
+    const ph = PROGRAM[i - 1].phase;
+    const cls = ph === 2 ? 'phase2' : ph === 3 ? 'phase3' : '';
+    pillsEl.innerHTML += `<button class="week-pill ${cls}" id="pill-${i}" onclick="selectWeek(${i})">שבוע ${i}</button>`;
+  }
+  selectWeek(1);
+}
+
+function selectWeek(n) {
+  state.currentWeek = n;
+  document.querySelectorAll('.week-pill').forEach(p => p.classList.remove('active'));
+  const pill = document.getElementById('pill-' + n);
+  if (pill) pill.classList.add('active');
+  renderWeek(n);
+}
+
+function renderWeek(n) {
+  const week = PROGRAM[n - 1];
+  const phCls = PHASE_CLASS[week.phase];
+  let html = `<div class="week-header">
+    <div class="week-num">שבוע ${n}</div>
+    <div class="phase-badge ${phCls}">${PHASE_NAMES[week.phase]}</div>
+  </div><div class="day-grid">`;
+
+  week.days.forEach(day => {
+    const isRest = day.type === 'rest';
+    html += `<div class="day-card${isRest ? ' rest' : ''}">
+      <div class="day-name">${day.name}</div>
+      <div class="day-type-badge ${TYPE_CLASS[day.type]}">${TYPE_LABEL[day.type]}</div>`;
+    day.exercises.forEach(ex => {
+      html += `<div class="exercise-row">
+        <span class="ex-name">${ex.he}</span>
+        <span class="ex-sets">${ex.sets}×${ex.reps}</span>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+
+  html += '</div>';
+  document.getElementById('weekDisplay').innerHTML = html;
+}
+
+// ──────────────────────────────────────────────────────────
+// PROGRESS TRACKER
+// ──────────────────────────────────────────────────────────
+function loadProgress() {
+  try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+  catch { return []; }
+}
+
+function saveProgress() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state.progress));
+}
+
+function addEntry() {
+  const date   = document.getElementById('pDate').value;
+  const weight = parseFloat(document.getElementById('pWeight').value);
+  const waist  = parseFloat(document.getElementById('pWaist').value);
+  if (!date || !weight || !waist) { alert('אנא מלא תאריך, משקל ומותניים'); return; }
+
+  state.progress.push({ date, weight, waist, ts: Date.now() });
+  state.progress.sort((a, b) => a.date.localeCompare(b.date));
+  saveProgress();
+
+  document.getElementById('pDate').value = '';
+  document.getElementById('pWeight').value = '';
+  document.getElementById('pWaist').value = '';
+
+  renderProgressTable();
+  renderChart();
+  checkMilestones();
+}
+
+function deleteEntry(ts) {
+  state.progress = state.progress.filter(e => e.ts !== ts);
+  saveProgress();
+  renderProgressTable();
+  renderChart();
+  checkMilestones();
+}
+
+function renderProgressTable() {
+  const tbody = document.getElementById('progressBody');
+  if (!state.progress.length) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty-state">אין נתונים עדיין — הוסף מדידה ראשונה</td></tr>';
+    return;
+  }
+  tbody.innerHTML = state.progress.map((e, i) => {
+    const prev = i > 0 ? state.progress[i - 1] : null;
+    let delta = '';
+    if (prev) {
+      const d = e.weight - prev.weight;
+      const sign = d > 0 ? '+' : '';
+      const col = d > 0 ? '#fca5a5' : '#6ee7b7';
+      delta = `<span style="color:${col};font-family:monospace">${sign}${d.toFixed(1)} ק"ג</span>`;
+    }
+    return `<tr>
+      <td>${formatDate(e.date)}</td>
+      <td>${e.weight.toFixed(1)}</td>
+      <td>${e.waist.toFixed(1)}</td>
+      <td>${delta || '—'}</td>
+      <td><button class="btn-delete" onclick="deleteEntry(${e.ts})">מחק</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function formatDate(d) {
+  const parts = d.split('-');
+  return `${parts[2]}/${parts[1]}/${parts[0].slice(2)}`;
+}
+
+// ──────────────────────────────────────────────────────────
+// CANVAS CHART
+// ──────────────────────────────────────────────────────────
+function setChartMode(mode) {
+  state.chartMode = mode;
+  document.getElementById('toggleWeight').classList.toggle('active', mode === 'weight');
+  document.getElementById('toggleWaist').classList.toggle('active', mode === 'waist');
+  renderChart();
+}
+
+function renderChart() {
+  const canvas = document.getElementById('progressChart');
+  const emptyEl = document.getElementById('chartEmpty');
+  const data = state.progress;
+
+  if (data.length < 2) {
+    canvas.style.display = 'none';
+    emptyEl.style.display = 'block';
+    return;
+  }
+  canvas.style.display = 'block';
+  emptyEl.style.display = 'none';
+
+  const dpr = window.devicePixelRatio || 1;
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const W = rect.width - 40;
+  const H = 220;
+  canvas.width  = W * dpr;
+  canvas.height = H * dpr;
+  canvas.style.width  = W + 'px';
+  canvas.style.height = H + 'px';
+
+  const ctx = canvas.getContext('2d');
+  ctx.scale(dpr, dpr);
+  ctx.clearRect(0, 0, W, H);
+
+  const key = state.chartMode;
+  const vals = data.map(d => d[key]);
+  const minV = Math.min(...vals);
+  const maxV = Math.max(...vals);
+  const pad  = (maxV - minV) * 0.15 || 1;
+  const lo   = minV - pad;
+  const hi   = maxV + pad;
+
+  const padL = 50, padR = 16, padT = 16, padB = 36;
+  const chartW = W - padL - padR;
+  const chartH = H - padT - padB;
+
+  function toX(i) { return padL + (i / (data.length - 1)) * chartW; }
+  function toY(v) { return padT + (1 - (v - lo) / (hi - lo)) * chartH; }
+
+  // Grid lines
+  ctx.strokeStyle = 'rgba(255,255,255,0.04)';
+  ctx.lineWidth = 1;
+  for (let i = 0; i <= 4; i++) {
+    const y = padT + (i / 4) * chartH;
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(W - padR, y); ctx.stroke();
+  }
+
+  // Y-axis labels
+  ctx.fillStyle = '#64748b';
+  ctx.font = '10px IBM Plex Mono, monospace';
+  ctx.textAlign = 'right';
+  for (let i = 0; i <= 4; i++) {
+    const v = hi - (i / 4) * (hi - lo);
+    const y = padT + (i / 4) * chartH;
+    ctx.fillText(v.toFixed(1), padL - 6, y + 4);
+  }
+
+  // X-axis labels
+  ctx.textAlign = 'center';
+  const step = Math.max(1, Math.floor(data.length / 6));
+  data.forEach((d, i) => {
+    if (i % step === 0 || i === data.length - 1) {
+      ctx.fillText(formatDate(d.date), toX(i), H - padB + 16);
+    }
+  });
+
+  // Line
+  const color = state.chartMode === 'weight' ? '#00d4ff' : '#7c3aed';
+  ctx.strokeStyle = color;
+  ctx.lineWidth = 2.5;
+  ctx.lineJoin = 'round';
+  ctx.lineCap  = 'round';
+  ctx.beginPath();
+  data.forEach((d, i) => {
+    i === 0 ? ctx.moveTo(toX(i), toY(d[key])) : ctx.lineTo(toX(i), toY(d[key]));
+  });
+  ctx.stroke();
+
+  // Gradient fill
+  const grad = ctx.createLinearGradient(0, padT, 0, padT + chartH);
+  grad.addColorStop(0, state.chartMode === 'weight' ? 'rgba(0,212,255,0.18)' : 'rgba(124,58,237,0.18)');
+  grad.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = grad;
+  ctx.beginPath();
+  data.forEach((d, i) => {
+    i === 0 ? ctx.moveTo(toX(i), toY(d[key])) : ctx.lineTo(toX(i), toY(d[key]));
+  });
+  ctx.lineTo(toX(data.length - 1), padT + chartH);
+  ctx.lineTo(toX(0), padT + chartH);
+  ctx.closePath();
+  ctx.fill();
+
+  // Data points
+  ctx.fillStyle = color;
+  data.forEach((d, i) => {
+    ctx.beginPath();
+    ctx.arc(toX(i), toY(d[key]), 4, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
+// ──────────────────────────────────────────────────────────
+// MILESTONES
+// ──────────────────────────────────────────────────────────
+const MILESTONES = [
+  { id: 'first_entry',  check: p => p.length >= 1 },
+  { id: 'week1',        check: p => p.length >= 2 },
+  { id: 'minus2kg',     check: p => p.length >= 2 && (p[0].weight - p[p.length - 1].weight) >= 2 },
+  { id: 'minus5kg',     check: p => p.length >= 2 && (p[0].weight - p[p.length - 1].weight) >= 5 },
+  { id: 'minus5cm',     check: p => p.length >= 2 && (p[0].waist  - p[p.length - 1].waist)  >= 5 },
+  { id: 'consistency',  check: p => p.length >= 4 },
+];
+
+function checkMilestones() {
+  MILESTONES.forEach(m => {
+    const el = document.getElementById('ms-' + m.id);
+    if (el) el.classList.toggle('unlocked', m.check(state.progress));
+  });
+}
+
+// ──────────────────────────────────────────────────────────
+// INIT
+// ──────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  state.progress = loadProgress();
+  // Set today's date as default
+  const today = new Date().toISOString().split('T')[0];
+  const pDateEl = document.getElementById('pDate');
+  if (pDateEl) pDateEl.value = today;
+});
+
+window.addEventListener('resize', () => {
+  if (state.currentTab === 'progress' && state.progress.length >= 2) renderChart();
+});
+</script>
+</body>
+</html>
